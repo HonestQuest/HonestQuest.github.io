@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<!-- TAB TITLE OF GAME -->
+        <title>Honest Quest</title>
+         <style>
+/*<!--            #mycanvas {
+                display: block;
+                border-style: solid;
+                border-width: 10px;
+                border-color: #D8C900;
+            }
+ -->*/        
+			
+		</style>
+        <script src="processing-1.4.1.js"></script>
+
+        <script type="text/processing" data-processing-target="mycanvas">	
+			//VARIABLES: SLIDE IMAGES + STATE
+			//stages
+			// starter = 0
+			// intro = 1
+			// instruction = 2
+			// gameBackground = 3
+			PImage starter; // title image
+			PImage intro; // introduction image
+			PImage instruction; // instruction image
+			PImage back; //background of game image
+			PImage gameOver; //game over image
+			var currentPage; // number of current page
+			
+			//CANVAS WIDTH
+			var canvas_width = 700; // canvas width
+			
+			//OBJECT VARIABLES FOR GAME
+			var baby; // baby/character
+			var goodChemical; // good chemical list
+			var badChemical; // bad chemical list
+			var score; // score of game
+
+			
+			
+			//__________________________________________________
+			//GAME IMPLEMENTATION FUNCTIONS
+			
+			
+			//STARTER FUNCTION
+			void setup() {
+				size(700,500); // setting size of canvas
+				fill(100); //setting text color
+				
+				//LOADING IMAGES + SETTING SLIDE STATE
+				starter = loadImage("starter.png"); // loading image of starter
+				intro = loadImage("introPage.png"); // loading image of intro page
+				instruction = loadImage("NewInstructions.png"); // loading image of instruction page
+				back = loadImage("skyBack.png"); // loading image of game background
+				gameOver = loadImage("gameover.png");
+				currentPage = 0; // current page starts at starter page (0)
+				
+				//INSTANTIATING OBJECT VARIABLES
+				baby = new Baby();  // making new Baby
+				goodChemical = new GoodFog(); // making list of good chemicals
+				badChemical = new BadFog(); // making list of bad chemicals
+				blocks = new Stack(); // making list of blocks
+				score = new Score(); // starting score at 0
+			}
+			
+			//DRAW FUNCTION
+			void draw(){  //draw function (infinite loop)
+				if (currentPage == 0){
+					image(starter, 0, 0); //displaying starter image
+				} 
+				else if (currentPage == 1) { 
+					image(intro, 0, 0); //displaying intro page
+				} 
+				else if (currentPage == 2) {
+					image(instruction,0,0); //displaying instruction page
+				} 
+				else if(currentPage == 3) {
+					image(back, 0,0); //displaying game background
+					fill(0); //setting font color to black
+					goodChemical.animate(); //animating list of good chemicals
+					badChemical.animate(); //animating list of bad chemicals
+					blocks.animate(); //animating list of blocks
+					score.drawScore();
+					//score.hasMadeProduct();
+					baby.drawBaby(); //drawing baby
+				}
+				else if(currentPage == 4){
+					image(gameOver, 0, 0);
+				}
+			}
+			
+			
+			//__________________________________________________
+			//KEY ACTION FUNCTION
+
+			//https://processing.org/reference/keyCode.html
+			void keyPressed() { //checking if key pressed + doing correlating function
+				if ( keyCode == RIGHT && currentPage == 0 ){ //right key pressed and at starter page
+					currentPage += 1; //changing current page to introduction page
+				}
+				else if( keyCode == RIGHT && currentPage == 1) { //right key pressed and at introduction page
+					currentPage += 1; //changing current page to instruction page
+				}
+				else if( keyCode == 16 && currentPage == 2) { //shift key pressed and at instruction page
+					currentPage += 1; //changing current page to game background
+				}
+				else if(currentPage == 4 && keyCode == 16) {
+					currentPage = 3;
+					setup();
+				}
+			}
+			
+			
+			
+			//__________________________________________________
+			//CLASSES
+			
+			
+			// BABY CLASS
+ 			class Baby {
+				//VARIABLES
+				var xPos; //x position of baby
+				var yPos; //y position of baby
+				PImage pic; //variable that has picture of baby
+				
+				//CONSTRUCTOR
+				Baby() { 
+					xPos = 0; //setting x position to far left
+					yPos = mouseY-100; //setting y position to y position of mouse
+					pic = loadImage("storkAndBaby.png"); //loading image of baby
+					image(pic,xPos,yPos); //displaying image of baby
+				}
+				
+				//CLASS FUNCTIONS
+				void drawBaby() { //method used to draw baby while mouse moving
+					if(mouseY>=0 && mouseX<=500) { //if the mouse is within canvas
+						yPos=mouseY-100; //set y position to whatever y position of mouse is
+					}
+					image(pic,xPos,yPos); //displaying image with new coordinates
+				}
+			}
+			
+			
+/*			class Flower {
+				var xPos;
+				var yPos;
+				var speed;
+				PImage pic;
+				
+				Flower(x) {
+					xPos = x;
+					yPos = 335;
+					speed = 3;
+					chooseFlower();
+					image(pic,xPos,yPos);
+				}
+				
+				void chooseFlower() {
+					var random = 1 + (int)(Math.random()*4);
+					if(random==1) {
+						pic = new loadImage("red1.png");
+					}
+					else if(random==2) {
+						pic = new loadImage("orangeFlower.png");
+					}
+					else if(random==3) {
+						pic = new loadImage("blueFlowEmpty.png");
+					}
+					else {
+						pic = new loadImage("blueFlow.png");
+					}
+				}
+				
+				void drawFlower() {
+					image(pic,xPos,yPos);
+				}
+				
+				void showFlower() {
+					image(pic,xPos,yPos);
+				}
+				
+				void moveFlower() {
+					xPos -= speed;
+					drawFlower();
+				}
+				
+			}
+			
+			class Lawn {
+				var list;
+				
+				Lawn() {
+					list = [];
+					
+					for(int i=0; i<canvas_width; i+=300) {
+						list.push(new Flower(i));
+					}
+				}
+				
+				void showLawn() {
+					for(int i=0;i<list.length;i++){
+						list[i].showFlower();
+					}
+				}
+				
+				void moveLawn() {
+					for(int i=0;i<list.length;i++) {
+						list[i].moveFlower();
+					}
+					removeLawn();
+				}
+			
+			    void removeLawn() {
+					if(list[0].xPos < -50) {
+						list=[];
+						list.push(new Flower(700));
+					}
+				}
+  			}
+*/
+
+
+			//GOOD CLOUD CLASS
+			class GoodCloud {
+				//VARIABLES
+				PImage good; //variable that has image
+				var xPos2; //x position of cloud
+				var yPos2; //y position of cloud
+				var gSpeed; //speed of cloud
+				
+				//CONSTRUCTOR
+				GoodCloud() { 
+					xPos2 = 700; //x position set to far right
+					yPos2 = Math.floor((Math.random()*350)); //y position set to random number
+					gSpeed = 3; //speed set to 3
+					good = loadImage("goodChemical.png"); //good chemical image loaded
+					image(good, xPos2, yPos2); //displaying image
+				}
+				
+				//CLASS FUNCTIONS
+				void drawGoodCloud() { //drawing cloud
+					image(good, xPos2, yPos2); //displaying image
+				}
+				void moveGoodCloud() { //making cloud move
+					xPos2=xPos2-gSpeed; //reducing value of x position to make it move
+				}
+			}
+
+			
+			//GOOD FOG CLASS
+			class GoodFog {
+				//VARIABLES
+				var list; //list of good clouds
+				var added = 0; //number of clouds added
+				var score = 0; //score of player
+
+				//CONSTRUCTOR
+				GoodFog() { 
+					list = []; //setting empty array to list
+					
+					for(int i=0; i<1; i++) { //adding a new cloud to list
+						list.push(new GoodCloud());
+						added += 1; //increasing added by 1
+					}
+				}
+				
+				//OTHER FUNCTIONS
+				void animate() { //animating the fog
+					showFog(); //draws all good clouds
+					moveFog(); //shifts all good clouds
+					updateList(); //gets rid of good clouds out of frame + adds more
+				}
+		
+				void showFog() { //draws all good clouds
+					for(int i=0;i<list.length;i++){
+						list[i].drawGoodCloud();
+					}
+				}
+				
+				void moveFog() { //moves all good clouds
+					for(int i=0;i<list.length;i++) {
+						list[i].moveGoodCloud();
+					}
+				}
+				
+				void updateList() { 
+					if(added<2) { //if less than 2 clouds
+						if (list[0].xPos2 < -200) { //deletes good clouds offscreen + adds one more
+							list.splice(0,1);
+							list.push(new GoodCloud());
+						}
+					}
+                        if (baby.xPos==list[0].xPos2-25 && baby.yPos+80>list[0].yPos2 && baby.yPos<list[0].yPos2+80){ //if baby touches good cloud, then disappears and score increases by 1; new good cloud added
+						score = score + 1;
+						list.splice(0,1);
+						list.push(new GoodCloud());
+					}
+                }
+
+			
+  			}
+			
+			
+			//BAD CLOUD CLASS
+			class BadCloud {
+				//VARIABLES
+				PImage bad; //variable that stores image of bad cloud
+				var xPos3; //x position of bad cloud
+				var yPos3; //y position of bad cloud
+				var bSpeed; //speed of bad cloud
+				
+				//CONSTRUCTOR
+				BadCloud() { 
+					xPos3 = 700; //x position set to far left of frame
+					yPos3 = Math.floor((Math.random()*350)); //y position is random number
+					bSpeed= 3; //speed is 3
+					bad = loadImage("badChemical.png"); //bad cloud image loaded
+					image(bad, xPos3, yPos3); //bad cloud image displayed
+				}
+				
+				//OTHER FUNCTIONS
+				void drawBadCloud() { //draws bad cloud
+					image(bad, xPos3, yPos3);
+				}
+				void moveBadCloud(){ //moves bad cloud based on speed
+					xPos3=xPos3-bSpeed;
+				}
+			}			
+			
+			
+			//BAD FOG CLASS
+			class BadFog {
+				//VARIABLES
+				var list; //list of bad clouds
+				var added = 0; //counts the number of bad clouds added
+
+				//CONSTRUCTOR
+				BadFog() { 
+					list = []; //list set to empty array
+					for(int i=0; i<1; i++) { //adds one new bad cloud
+						list.push(new BadCloud());
+						added += 1;
+					}
+				}
+				
+				//OTHER FUNCTIONS
+				void animate() { //animates all bad clouds by drawing, moving, and updating them
+					showFog();
+					moveFog();
+					updateList();
+				}
+		
+				void showFog() { //draws every bad cloud in list
+					for(int i=0;i<list.length;i++){
+						list[i].drawBadCloud();
+					}
+				}
+				
+				void moveFog() { //moves every bad cloud in list
+					for(int i=0;i<list.length;i++) {
+						list[i].moveBadCloud();
+					}
+				}
+				
+				void updateList() {
+					if(added<2) { //if less than two bad clouds
+						if (list[0].xPos3 < -200) { //deletes all bad clouds offscreen and adds new one
+							list.splice(0,1);
+							list.push(new BadCloud());
+						}
+					}
+                    if (baby.xPos+100==list[0].xPos3 && baby.yPos+80>list[0].yPos3 && baby.yPos-80<list[0].yPos3){ //if baby touches bad cloud, switches to game over slide; new bad cloud added
+						currentPage =  4;
+					}
+                }
+
+			
+  			}
+
+			
+			//BLOCK CLASS
+			class Blocks {
+				//VARIABLES
+				var xPos; //blocks x
+				var yPos; //blocks y
+				var speed; //blocks speed
+				PImage block; //variable that stores block image
+				var randomNumber; //make randomNumber a variable
+				
+				//CONSTRUCTOR
+				Blocks() { //block constructor
+					xPos = 650; //set starting block xposition 
+					yPos = Math.floor((Math.random()*350)); //set starting block yposition
+					speed = 3; //set speed
+					block = loadImage("blockA.png"); //load blockA image
+					//chooseBlocks();
+					image(block,xPos,yPos); //displays image
+					line(xPos+60,0,xPos+60,yPos+20); //displays the line
+				}
+				
+				
+				//OTHER FUNCTIONS
+				/*void chooseBlocks() {
+					randomNumber = mathRandom();
+					if (randomNumber <= 0.5)
+						block = loadImage("blockA.png");
+					else 
+						block = loadImage("blockB.png");
+				}*/
+				
+				void drawBlocks() { //draws the block and the line
+					image(block,xPos,yPos);
+					line(xPos+60,0,xPos+60,yPos+20);
+				}
+				
+				void moveBlocks() { //moves the block + line based on speed
+					xPos = xPos - speed;
+				}
+			}
+			
+			
+			
+			//STACK CLASS
+			class Stack {
+				//VARIABLES
+				var list; //list of blocks
+				var added = 0; //number of added blocks
+
+				//CONSTRUCTOR
+				Stack() { 
+					list = []; //makes list empty array
+					
+					for(int i=0; i<1; i++) { //adds one block
+						list.push(new Blocks());
+						added += 1;
+					}
+				}
+				
+				
+				//OTHER FUNCTIONS
+				/* 
+					Shows all blocks, moves all blocks, deletes offscreen blocks, adds new blocks, checks for game over slide
+				*/
+				void animate() { 
+					showStack();
+					moveStack();
+					updateList();
+					gameOver();
+				}
+		
+				void showStack() { //drawing all blocks in list
+					for(int i=0;i<list.length;i++){
+						list[i].drawBlocks();
+					}
+				}
+				
+				void moveStack() { //moving all blocks in list
+					for(int i=0;i<list.length;i++) {
+						list[i].moveBlocks();
+					}
+				}
+				
+				void updateList() {
+					if(added<2) { //if less than two blocks
+						if (list[0].xPos < -200) { //deletes blocks that are offscreen and adds new one
+							list.splice(0,1);
+							list.push(new Blocks());
+						}
+					}
+                    
+                }
+				
+				void gameOver () { //if baby touches block, then game over slide displayed
+					if (baby.xPos + 101 == list[0].xPos && baby.yPos+80>list[0].yPos && baby.yPos-80<list[0].yPos) {
+						currentPage=4;
+					}
+				}
+  			}
+
+			//SCORE CLASS
+			//class that keeps track of player's score
+			class Score {
+				//VARIABLES
+				PImage keep; //variable that stores image of score
+				var score; //variable that keeps track of player's score
+				
+				//CONSTRUCTOR
+				Score() {
+					keep = loadImage("scorePic.png"); //loads score image
+					image(keep, 25, 25); //displays score image
+					score = 0 //score set to 0 at the beginning
+				}
+				
+				//OTHER FUNCTIONS
+				void drawScore(){ //draws the score image and the score value
+					image(keep, 10, 0);
+					text(goodChemical.score, 105, 32);
+				}
+				
+				/*
+				void hasMadeProduct() {
+					if(score != 0 && score%5==0) {
+						image(starter,0,0);
+					}
+				}
+				*/
+			}
+			
+			</script>
+     </head>
+    <body>
+		<!-- CANVAS/FRAME OF GAME -->
+        <canvas id="mycanvas"> </canvas>
+    </body>
+</html> 
+
+
