@@ -292,7 +292,7 @@
 							list.push(new GoodCloud());
 						}
 					}
-                        if (baby.xPos==list[0].xPos2-25 && baby.yPos+80>list[0].yPos2 && baby.yPos<list[0].yPos2+80){ //if baby touches good cloud, then disappears and score increases by 1; new good cloud added
+                    if (baby.xPos==list[0].xPos2-25 && baby.yPos+80>list[0].yPos2 && baby.yPos<list[0].yPos2+80){ //if baby touches good cloud, then disappears and score increases by 1; new good cloud added
 						score = score + 1;
 						list.splice(0,1);
 						list.push(new GoodCloud());
@@ -371,7 +371,7 @@
 							list.push(new BadCloud());
 						}
 					}
-                    if (baby.xPos+100==list[0].xPos3 && baby.yPos+80>list[0].yPos3 && baby.yPos-80<list[0].yPos3){ //if baby touches bad cloud, switches to game over slide; new bad cloud added
+                    if (baby.xPos==list[0].xPos3-100 && baby.yPos+60>list[0].yPos3 && baby.yPos<list[0].yPos3+30){  //if baby touches bad cloud, switches to game over slide; new bad cloud added
 						currentPage =  4;
 					}
                 }
@@ -473,7 +473,7 @@
                 }
 				
 				void gameOver () { //if baby touches block, then game over slide displayed
-					if (baby.xPos + 101 == list[0].xPos && baby.yPos+80>list[0].yPos && baby.yPos-80<list[0].yPos) {
+					if (baby.xPos + 80 == list[0].xPos && baby.yPos+80>list[0].yPos && baby.yPos-100<list[0].yPos) {
 						currentPage=4;
 					}
 				}
