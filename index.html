@@ -27,7 +27,7 @@
 			PImage instruction; // instruction image
 			PImage back; //background of game image
 			PImage gameOver; //game over image
-			PImage madeProductImage;
+			PImage madeProductImage; //made a product slide image
 			var currentPage; // number of current page
 			
 			//CANVAS WIDTH
@@ -55,8 +55,8 @@
 				intro = loadImage("introPage.png"); // loading image of intro page
 				instruction = loadImage("NewInstructions.png"); // loading image of instruction page
 				back = loadImage("skyBack.png"); // loading image of game background
-				gameOver = loadImage("gameover.png");
-				madeProductImage = loadImage("winnerPage.png");
+				gameOver = loadImage("gameover.png"); //loading game over image
+				madeProductImage = loadImage("winnerPage.png"); //loading won product image
 				currentPage = 0; // current page starts at starter page (0)
 				
 				//INSTANTIATING OBJECT VARIABLES
@@ -256,7 +256,7 @@
 				void moveGoodCloud() { //making cloud move
 					xPos2=xPos2-gSpeed; //reducing value of x position to make it move
 				}
-				void hasMadeProduct() {
+				void hasMadeProduct() { //checking if you have gained enough good clouds to have made a product
 					if(goodChemical.score != 0 && maxAchievedScore != goodChemical.score && goodChemical.score % 10 == 0) {
 						currentPage=5;
 						maxAchievedScore = goodChemical.score;
